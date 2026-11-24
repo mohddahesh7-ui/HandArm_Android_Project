@@ -1,3 +1,5 @@
+import java.net.URL
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -48,7 +50,7 @@ val downloadHandModel by tasks.registering {
     doLast {
         modelFile.parentFile.mkdirs()
         val url = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task"
-        java.net.URL(url).openStream().use { input ->
+        URL(url).openStream().use { input ->
             modelFile.outputStream().use { out -> input.copyTo(out) }
         }
     }
