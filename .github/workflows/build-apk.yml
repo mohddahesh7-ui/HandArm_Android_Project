@@ -11,10 +11,17 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: "8.7" }
+      - name: Find the Android project (works even if uploaded one folder too deep)
+        id: find
+        run: |
+          f=$(find . -name settings.gradle.kts -not -path "*/node_modules/*" | head -n 1)
+          if [ -z "$f" ]; then echo "settings.gradle.kts not found. Files in repo:"; find . -maxdepth 3 -not -path "./.git/*"; exit 1; fi
+          echo "dir=$(dirname "$f")" >> "$GITHUB_OUTPUT"
+          echo "Project found in: $(dirname "$f")"
       - name: Build debug APK
-        working-directory: android
+        working-directory: ${{ steps.find.outputs.dir }}
         run: gradle assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: HandArm-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ steps.find.outputs.dir }}/app/build/outputs/apk/debug/app-debug.apk
